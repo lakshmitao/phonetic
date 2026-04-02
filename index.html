@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Phonetic Alphabet Trainer</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#1c1c1c">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1c1c1c;
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: calc(env(safe-area-inset-top, 20px) + 16px) 16px 16px;
+        }
+        .container { max-width: 500px; margin: 0 auto; }
+        h1 { font-size: 1.6rem; font-weight: 700; color: #fff; margin-bottom: 6px; }
+        h1 span { color: #42a5f5; }
+        .subtitle { color: #888; font-size: 0.85rem; margin-bottom: 24px; }
+
+        /* Mode tabs */
+        .tabs {
+            display: flex; gap: 8px; margin-bottom: 24px;
+        }
+        .tab {
+            flex: 1; padding: 10px; border: none; border-radius: 10px;
+            font-size: 0.85rem; font-weight: 600; cursor: pointer;
+            background: #2a2a2a; color: #888; transition: all 0.2s;
+        }
+        .tab.active { background: #42a5f5; color: #fff; }
+
+        /* Quiz area */
+        .quiz-card {
+            background: #2a2a2a; border-radius: 16px; padding: 32px;
+            text-align: center; margin-bottom: 20px;
+        }
+        .prompt-label { color: #888; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+        .prompt {
+            font-size: 4rem; font-weight: 800; color: #fff; margin-bottom: 8px;
+        }
+        .hint { color: #555; font-size: 0.9rem; min-height: 1.4em; margin-bottom: 16px; }
+
+        /* Input */
+        .input-row {
+            display: flex; gap: 10px; margin-bottom: 16px;
+        }
+        .input-row input {
+            flex: 1; padding: 14px 16px; border-radius: 10px; border: 2px solid #333;
+            background: #1c1c1c; color: #fff; font-size: 1.1rem;
+            outline: none; transition: border-color 0.2s;
+        }
+        .input-row input:focus { border-color: #42a5f5; }
+        .input-row input.correct { border-color: #51cf66; }
+        .input-row input.wrong { border-color: #ff6b6b; }
+        .input-row button {
+            padding: 14px 20px; border-radius: 10px; border: none;
+            background: #42a5f5; color: #fff; font-size: 1rem; font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Feedback */
+        .feedback {
+            font-size: 1.1rem; font-weight: 600; min-height: 1.5em; margin-bottom: 20px;
+        }
+        .feedback.correct { color: #51cf66; }
+        .feedback.wrong { color: #ff6b6b; }
+
+        /* Score */
+        .score-bar {
+            display: flex; justify-content: space-between; background: #2a2a2a;
+            border-radius: 10px; padding: 12px 16px; margin-bottom: 20px;
+        }
+        .score-item { text-align: center; }
+        .score-item .label { font-size: 0.7rem; color: #888; text-transform: uppercase; }
+        .score-item .val { font-size: 1.3rem; font-weight: 700; color: #fff; }
+        .score-item .val.green { color: #51cf66; }
+        .score-item .val.red { color: #ff6b6b; }
+        .score-item .val.blue { color: #42a5f5; }
+
+        /* Reference table */
+        .ref-toggle {
+            width: 100%; padding: 12px; border: none; border-radius: 10px;
+            background: #2a2a2a; color: #aaa; font-size: 0.85rem; cursor: pointer;
+            margin-bottom: 12px; font-weight: 600;
+        }
+        .ref-table {
+            display: none; background: #2a2a2a; border-radius: 12px;
+            padding: 16px; margin-bottom: 20px;
+        }
+        .ref-table.show { display: block; }
+        .ref-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px 20px;
+        }
+        .ref-row {
+            display: flex; justify-content: space-between; padding: 4px 0;
+            border-bottom: 1px solid #333;
+        }
+        .ref-letter { font-weight: 700; color: #42a5f5; width: 24px; }
+        .ref-word { color: #ccc; }
+        .ref-row .mastered { color: #51cf66; }
+
+        /* Skip/hint buttons */
+        .action-row { display: flex; gap: 10px; margin-bottom: 16px; }
+        .action-btn {
+            flex: 1; padding: 10px; border: 1px solid #333; border-radius: 10px;
+            background: transparent; color: #888; font-size: 0.85rem; cursor: pointer;
+        }
+        .action-btn:hover { border-color: #555; color: #ccc; }
+
+        /* Choice buttons for multiple choice mode */
+        .choices {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;
+        }
+        .choice-btn {
+            padding: 14px; border-radius: 10px; border: 2px solid #333;
+            background: #1c1c1c; color: #fff; font-size: 1rem; font-weight: 600;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .choice-btn:hover { border-color: #42a5f5; }
+        .choice-btn.correct { border-color: #51cf66; background: rgba(81,207,102,0.1); }
+        .choice-btn.wrong { border-color: #ff6b6b; background: rgba(255,107,107,0.1); }
+        .choice-btn.reveal { border-color: #51cf66; background: rgba(81,207,102,0.15); }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Phonetic <span>Alphabet</span></h1>
+    <p class="subtitle">NATO / ICAO phonetic alphabet trainer</p>
+
+    <div class="tabs">
+        <button class="tab active" onclick="setMode('type')" id="tab-type">Type It</button>
+        <button class="tab" onclick="setMode('choice')" id="tab-choice">Multiple Choice</button>
+        <button class="tab" onclick="setMode('reverse')" id="tab-reverse">Reverse</button>
+    </div>
+
+    <div class="score-bar">
+        <div class="score-item"><div class="label">Streak</div><div class="val blue" id="streak">0</div></div>
+        <div class="score-item"><div class="label">Correct</div><div class="val green" id="correct">0</div></div>
+        <div class="score-item"><div class="label">Wrong</div><div class="val red" id="wrong">0</div></div>
+        <div class="score-item"><div class="label">Best</div><div class="val" id="best">0</div></div>
+    </div>
+
+    <div class="quiz-card">
+        <div class="prompt-label" id="prompt-label">What is the phonetic word for:</div>
+        <div class="prompt" id="prompt">A</div>
+        <div class="hint" id="hint"></div>
+    </div>
+
+    <!-- Type mode -->
+    <div id="type-area">
+        <div class="input-row">
+            <input type="text" id="answer" placeholder="Type your answer..." autocomplete="off" autocapitalize="off" spellcheck="false">
+            <button onclick="checkAnswer()" id="submit-btn">Go</button>
+        </div>
+    </div>
+
+    <!-- Multiple choice mode -->
+    <div id="choice-area" style="display:none;">
+        <div class="choices" id="choices"></div>
+    </div>
+
+    <div class="feedback" id="feedback"></div>
+
+    <div class="action-row">
+        <button class="action-btn" onclick="showHint()">Hint</button>
+        <button class="action-btn" onclick="skipQuestion()">Skip</button>
+        <button class="action-btn" onclick="resetScore()">Reset</button>
+    </div>
+
+    <button class="ref-toggle" onclick="toggleRef()">Show Reference Chart</button>
+    <div class="ref-table" id="ref-table">
+        <div class="ref-grid" id="ref-grid"></div>
+    </div>
+</div>
+
+<script>
+const ALPHABET = {
+    A: 'Alpha', B: 'Bravo', C: 'Charlie', D: 'Delta', E: 'Echo',
+    F: 'Foxtrot', G: 'Golf', H: 'Hotel', I: 'India', J: 'Juliet',
+    K: 'Kilo', L: 'Lima', M: 'Mike', N: 'November', O: 'Oscar',
+    P: 'Papa', Q: 'Quebec', R: 'Romeo', S: 'Sierra', T: 'Tango',
+    U: 'Uniform', V: 'Victor', W: 'Whiskey', X: 'X-ray', Y: 'Yankee',
+    Z: 'Zulu'
+};
+
+const REVERSE = {};
+Object.entries(ALPHABET).forEach(([k, v]) => REVERSE[v] = k);
+
+let mode = 'type';
+let currentLetter = '';
+let currentWord = '';
+let score = { correct: 0, wrong: 0, streak: 0, best: 0 };
+let mastered = {};
+let answered = false;
+
+// Load saved progress
+try {
+    const saved = JSON.parse(localStorage.getItem('phonetic-score'));
+    if (saved) score = saved;
+    const m = JSON.parse(localStorage.getItem('phonetic-mastered'));
+    if (m) mastered = m;
+} catch(e) {}
+
+function save() {
+    localStorage.setItem('phonetic-score', JSON.stringify(score));
+    localStorage.setItem('phonetic-mastered', JSON.stringify(mastered));
+}
+
+function updateUI() {
+    document.getElementById('streak').textContent = score.streak;
+    document.getElementById('correct').textContent = score.correct;
+    document.getElementById('wrong').textContent = score.wrong;
+    document.getElementById('best').textContent = score.best;
+}
+
+function setMode(m) {
+    mode = m;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + m).classList.add('active');
+    document.getElementById('type-area').style.display = (m === 'type' || m === 'reverse') ? '' : 'none';
+    document.getElementById('choice-area').style.display = m === 'choice' ? '' : 'none';
+    nextQuestion();
+}
+
+function pickLetter() {
+    // Weight towards unmastered letters
+    const letters = Object.keys(ALPHABET);
+    const unmastered = letters.filter(l => !mastered[l] || mastered[l] < 3);
+    const pool = unmastered.length > 0 ? unmastered : letters;
+    let pick;
+    do {
+        pick = pool[Math.floor(Math.random() * pool.length)];
+    } while (pick === currentLetter && pool.length > 1);
+    return pick;
+}
+
+function nextQuestion() {
+    answered = false;
+    document.getElementById('feedback').textContent = '';
+    document.getElementById('feedback').className = 'feedback';
+    document.getElementById('hint').textContent = '';
+
+    currentLetter = pickLetter();
+    currentWord = ALPHABET[currentLetter];
+
+    if (mode === 'reverse') {
+        document.getElementById('prompt-label').textContent = 'What letter does this represent:';
+        document.getElementById('prompt').textContent = currentWord;
+        document.getElementById('prompt').style.fontSize = '2.5rem';
+        document.getElementById('answer').placeholder = 'Type the letter...';
+    } else {
+        document.getElementById('prompt-label').textContent = 'What is the phonetic word for:';
+        document.getElementById('prompt').textContent = currentLetter;
+        document.getElementById('prompt').style.fontSize = '4rem';
+        document.getElementById('answer').placeholder = 'Type your answer...';
+    }
+
+    const input = document.getElementById('answer');
+    input.value = '';
+    input.className = '';
+    input.focus();
+
+    if (mode === 'choice') buildChoices();
+    updateUI();
+}
+
+function buildChoices() {
+    const correct = currentWord;
+    const allWords = Object.values(ALPHABET).filter(w => w !== correct);
+    const shuffled = allWords.sort(() => Math.random() - 0.5).slice(0, 3);
+    shuffled.push(correct);
+    shuffled.sort(() => Math.random() - 0.5);
+
+    const container = document.getElementById('choices');
+    container.innerHTML = '';
+    shuffled.forEach(word => {
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.textContent = word;
+        btn.onclick = () => checkChoice(btn, word);
+        container.appendChild(btn);
+    });
+}
+
+function checkChoice(btn, word) {
+    if (answered) return;
+    answered = true;
+
+    if (word === currentWord) {
+        btn.classList.add('correct');
+        markCorrect();
+    } else {
+        btn.classList.add('wrong');
+        markWrong();
+        document.querySelectorAll('.choice-btn').forEach(b => {
+            if (b.textContent === currentWord) b.classList.add('reveal');
+        });
+    }
+    setTimeout(nextQuestion, 1200);
+}
+
+function checkAnswer() {
+    if (answered) { nextQuestion(); return; }
+    const input = document.getElementById('answer');
+    const answer = input.value.trim().toLowerCase();
+    if (!answer) return;
+
+    answered = true;
+
+    if (mode === 'reverse') {
+        if (answer === currentLetter.toLowerCase()) {
+            input.classList.add('correct');
+            markCorrect();
+        } else {
+            input.classList.add('wrong');
+            markWrong();
+            document.getElementById('feedback').textContent = `It was ${currentLetter}`;
+            document.getElementById('feedback').className = 'feedback wrong';
+        }
+    } else {
+        if (answer === currentWord.toLowerCase()) {
+            input.classList.add('correct');
+            markCorrect();
+        } else {
+            input.classList.add('wrong');
+            markWrong();
+            document.getElementById('feedback').textContent = `It was ${currentWord}`;
+            document.getElementById('feedback').className = 'feedback wrong';
+        }
+    }
+    setTimeout(nextQuestion, 1200);
+}
+
+function markCorrect() {
+    score.correct++;
+    score.streak++;
+    if (score.streak > score.best) score.best = score.streak;
+    mastered[currentLetter] = (mastered[currentLetter] || 0) + 1;
+    document.getElementById('feedback').textContent = 'Correct!';
+    document.getElementById('feedback').className = 'feedback correct';
+    save();
+}
+
+function markWrong() {
+    score.wrong++;
+    score.streak = 0;
+    mastered[currentLetter] = Math.max(0, (mastered[currentLetter] || 0) - 1);
+    save();
+}
+
+function showHint() {
+    const word = mode === 'reverse' ? currentLetter : currentWord;
+    document.getElementById('hint').textContent = word[0] + '_ _ _';
+}
+
+function skipQuestion() {
+    const word = mode === 'reverse' ? currentLetter : currentWord;
+    document.getElementById('feedback').textContent = `Answer: ${word}`;
+    document.getElementById('feedback').className = 'feedback wrong';
+    setTimeout(nextQuestion, 1500);
+}
+
+function resetScore() {
+    score = { correct: 0, wrong: 0, streak: 0, best: 0 };
+    mastered = {};
+    save();
+    updateUI();
+    nextQuestion();
+}
+
+function toggleRef() {
+    const table = document.getElementById('ref-table');
+    table.classList.toggle('show');
+}
+
+function buildRef() {
+    const grid = document.getElementById('ref-grid');
+    Object.entries(ALPHABET).forEach(([letter, word]) => {
+        const row = document.createElement('div');
+        row.className = 'ref-row';
+        const m = mastered[letter] >= 3 ? ' mastered' : '';
+        row.innerHTML = `<span class="ref-letter">${letter}</span><span class="ref-word${m}">${word}</span>`;
+        grid.appendChild(row);
+    });
+}
+
+document.getElementById('answer').addEventListener('keydown', e => {
+    if (e.key === 'Enter') checkAnswer();
+});
+
+buildRef();
+updateUI();
+nextQuestion();
+</script>
+</body>
+</html>
