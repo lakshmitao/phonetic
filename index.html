@@ -16,15 +16,16 @@
             min-height: 100vh;
             padding: calc(env(safe-area-inset-top, 20px) + 16px) 16px 16px;
         }
-        .container { max-width: 500px; margin: 0 auto; }
+        .page-layout { max-width: 900px; margin: 0 auto; display: flex; gap: 20px; }
+        .main-col { flex: 1; min-width: 0; }
+        .side-col { width: 220px; flex-shrink: 0; }
+
         h1 { font-size: 1.6rem; font-weight: 700; color: #fff; margin-bottom: 6px; }
         h1 span { color: #42a5f5; }
         .subtitle { color: #888; font-size: 0.85rem; margin-bottom: 24px; }
 
         /* Mode tabs */
-        .tabs {
-            display: flex; gap: 8px; margin-bottom: 24px;
-        }
+        .tabs { display: flex; gap: 8px; margin-bottom: 24px; }
         .tab {
             flex: 1; padding: 10px; border: none; border-radius: 10px;
             font-size: 0.85rem; font-weight: 600; cursor: pointer;
@@ -38,15 +39,11 @@
             text-align: center; margin-bottom: 20px;
         }
         .prompt-label { color: #888; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
-        .prompt {
-            font-size: 4rem; font-weight: 800; color: #fff; margin-bottom: 8px;
-        }
+        .prompt { font-size: 4rem; font-weight: 800; color: #fff; margin-bottom: 8px; }
         .hint { color: #555; font-size: 0.9rem; min-height: 1.4em; margin-bottom: 16px; }
 
         /* Input */
-        .input-row {
-            display: flex; gap: 10px; margin-bottom: 16px;
-        }
+        .input-row { display: flex; gap: 10px; margin-bottom: 16px; }
         .input-row input {
             flex: 1; padding: 14px 16px; border-radius: 10px; border: 2px solid #333;
             background: #1c1c1c; color: #fff; font-size: 1.1rem;
@@ -57,14 +54,11 @@
         .input-row input.wrong { border-color: #ff6b6b; }
         .input-row button {
             padding: 14px 20px; border-radius: 10px; border: none;
-            background: #42a5f5; color: #fff; font-size: 1rem; font-weight: 600;
-            cursor: pointer;
+            background: #42a5f5; color: #fff; font-size: 1rem; font-weight: 600; cursor: pointer;
         }
 
         /* Feedback */
-        .feedback {
-            font-size: 1.1rem; font-weight: 600; min-height: 1.5em; margin-bottom: 20px;
-        }
+        .feedback { font-size: 1.1rem; font-weight: 600; min-height: 1.5em; margin-bottom: 20px; }
         .feedback.correct { color: #51cf66; }
         .feedback.wrong { color: #ff6b6b; }
 
@@ -80,29 +74,7 @@
         .score-item .val.red { color: #ff6b6b; }
         .score-item .val.blue { color: #42a5f5; }
 
-        /* Reference table */
-        .ref-toggle {
-            width: 100%; padding: 12px; border: none; border-radius: 10px;
-            background: #2a2a2a; color: #aaa; font-size: 0.85rem; cursor: pointer;
-            margin-bottom: 12px; font-weight: 600;
-        }
-        .ref-table {
-            display: none; background: #2a2a2a; border-radius: 12px;
-            padding: 16px; margin-bottom: 20px;
-        }
-        .ref-table.show { display: block; }
-        .ref-grid {
-            display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px 20px;
-        }
-        .ref-row {
-            display: flex; justify-content: space-between; padding: 4px 0;
-            border-bottom: 1px solid #333;
-        }
-        .ref-letter { font-weight: 700; color: #42a5f5; width: 24px; }
-        .ref-word { color: #ccc; }
-        .ref-row .mastered { color: #51cf66; }
-
-        /* Skip/hint buttons */
+        /* Action buttons */
         .action-row { display: flex; gap: 10px; margin-bottom: 16px; }
         .action-btn {
             flex: 1; padding: 10px; border: 1px solid #333; border-radius: 10px;
@@ -110,10 +82,8 @@
         }
         .action-btn:hover { border-color: #555; color: #ccc; }
 
-        /* Choice buttons for multiple choice mode */
-        .choices {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;
-        }
+        /* Choice buttons */
+        .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
         .choice-btn {
             padding: 14px; border-radius: 10px; border: 2px solid #333;
             background: #1c1c1c; color: #fff; font-size: 1rem; font-weight: 600;
@@ -123,56 +93,136 @@
         .choice-btn.correct { border-color: #51cf66; background: rgba(81,207,102,0.1); }
         .choice-btn.wrong { border-color: #ff6b6b; background: rgba(255,107,107,0.1); }
         .choice-btn.reveal { border-color: #51cf66; background: rgba(81,207,102,0.15); }
+
+        /* Progress sidebar */
+        .progress-panel {
+            background: #2a2a2a; border-radius: 12px; padding: 16px;
+            position: sticky; top: 16px;
+        }
+        .progress-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 12px;
+        }
+        .progress-header h3 { font-size: 0.85rem; color: #fff; font-weight: 700; }
+        .progress-count { font-size: 0.75rem; color: #888; }
+        .progress-bar-bg {
+            height: 6px; background: #444; border-radius: 3px; margin-bottom: 16px; overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%; background: #51cf66; border-radius: 3px; transition: width 0.3s;
+        }
+
+        .progress-section-label {
+            font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em;
+            margin-bottom: 6px; padding-bottom: 4px; border-bottom: 1px solid #333;
+        }
+        .progress-section-label.green { color: #51cf66; }
+        .progress-section-label.red { color: #ff6b6b; }
+        .progress-section-label.gray { color: #666; }
+
+        .progress-list { list-style: none; margin-bottom: 14px; }
+        .progress-list li {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 3px 0; font-size: 0.8rem;
+        }
+        .progress-list .letter { font-weight: 700; width: 20px; }
+        .progress-list .word { color: #aaa; }
+        .progress-list .count { font-size: 0.7rem; color: #666; min-width: 20px; text-align: right; }
+        .progress-list.mastered .letter { color: #51cf66; }
+        .progress-list.mastered .word { color: #51cf66; }
+        .progress-list.mastered .count { color: #51cf66; }
+        .progress-list.learning .letter { color: #ffa726; }
+        .progress-list.learning .word { color: #ffa726; }
+        .progress-list.learning .count { color: #ffa726; }
+        .progress-list.not-started .letter { color: #555; }
+        .progress-list.not-started .word { color: #555; }
+
+        .reset-btn {
+            width: 100%; padding: 10px; border: 1px solid #ff6b6b33; border-radius: 8px;
+            background: transparent; color: #ff6b6b; font-size: 0.8rem; font-weight: 600;
+            cursor: pointer; margin-top: 8px;
+        }
+        .reset-btn:hover { background: #ff6b6b15; }
+
+        /* Mobile: sidebar below */
+        @media (max-width: 700px) {
+            .page-layout { flex-direction: column; }
+            .side-col { width: 100%; }
+            .progress-panel { position: static; }
+        }
     </style>
 </head>
 <body>
-<div class="container">
-    <h1>Phonetic <span>Alphabet</span></h1>
-    <p class="subtitle">NATO / ICAO phonetic alphabet trainer</p>
+<div class="page-layout">
+    <div class="main-col">
+        <h1>Phonetic <span>Alphabet</span></h1>
+        <p class="subtitle">NATO / ICAO phonetic alphabet trainer</p>
 
-    <div class="tabs">
-        <button class="tab active" onclick="setMode('type')" id="tab-type">Type It</button>
-        <button class="tab" onclick="setMode('choice')" id="tab-choice">Multiple Choice</button>
-        <button class="tab" onclick="setMode('reverse')" id="tab-reverse">Reverse</button>
-    </div>
+        <div class="tabs">
+            <button class="tab active" onclick="setMode('type')" id="tab-type">Type It</button>
+            <button class="tab" onclick="setMode('choice')" id="tab-choice">Multiple Choice</button>
+            <button class="tab" onclick="setMode('reverse')" id="tab-reverse">Reverse</button>
+        </div>
 
-    <div class="score-bar">
-        <div class="score-item"><div class="label">Streak</div><div class="val blue" id="streak">0</div></div>
-        <div class="score-item"><div class="label">Correct</div><div class="val green" id="correct">0</div></div>
-        <div class="score-item"><div class="label">Wrong</div><div class="val red" id="wrong">0</div></div>
-        <div class="score-item"><div class="label">Best</div><div class="val" id="best">0</div></div>
-    </div>
+        <div class="score-bar">
+            <div class="score-item"><div class="label">Streak</div><div class="val blue" id="streak">0</div></div>
+            <div class="score-item"><div class="label">Correct</div><div class="val green" id="correct">0</div></div>
+            <div class="score-item"><div class="label">Wrong</div><div class="val red" id="wrong">0</div></div>
+            <div class="score-item"><div class="label">Best</div><div class="val" id="best">0</div></div>
+        </div>
 
-    <div class="quiz-card">
-        <div class="prompt-label" id="prompt-label">What is the phonetic word for:</div>
-        <div class="prompt" id="prompt">A</div>
-        <div class="hint" id="hint"></div>
-    </div>
+        <div class="quiz-card">
+            <div class="prompt-label" id="prompt-label">What is the phonetic word for:</div>
+            <div class="prompt" id="prompt">A</div>
+            <div class="hint" id="hint"></div>
+        </div>
 
-    <!-- Type mode -->
-    <div id="type-area">
-        <div class="input-row">
-            <input type="text" id="answer" placeholder="Type your answer..." autocomplete="off" autocapitalize="off" spellcheck="false">
-            <button onclick="checkAnswer()" id="submit-btn">Go</button>
+        <div id="type-area">
+            <div class="input-row">
+                <input type="text" id="answer" placeholder="Type your answer..." autocomplete="off" autocapitalize="off" spellcheck="false">
+                <button onclick="checkAnswer()" id="submit-btn">Go</button>
+            </div>
+        </div>
+
+        <div id="choice-area" style="display:none;">
+            <div class="choices" id="choices"></div>
+        </div>
+
+        <div class="feedback" id="feedback"></div>
+
+        <div class="action-row">
+            <button class="action-btn" onclick="showHint()">Hint</button>
+            <button class="action-btn" onclick="skipQuestion()">Skip</button>
         </div>
     </div>
 
-    <!-- Multiple choice mode -->
-    <div id="choice-area" style="display:none;">
-        <div class="choices" id="choices"></div>
-    </div>
+    <div class="side-col">
+        <div class="progress-panel">
+            <div class="progress-header">
+                <h3>Progress</h3>
+                <span class="progress-count" id="progress-count">0 / 26</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progress-bar" style="width: 0%"></div>
+            </div>
 
-    <div class="feedback" id="feedback"></div>
+            <div id="mastered-section">
+                <div class="progress-section-label green">Mastered</div>
+                <ul class="progress-list mastered" id="mastered-list"></ul>
+            </div>
 
-    <div class="action-row">
-        <button class="action-btn" onclick="showHint()">Hint</button>
-        <button class="action-btn" onclick="skipQuestion()">Skip</button>
-        <button class="action-btn" onclick="resetScore()">Reset</button>
-    </div>
+            <div id="learning-section">
+                <div class="progress-section-label" style="color: #ffa726;">Learning</div>
+                <ul class="progress-list learning" id="learning-list"></ul>
+            </div>
 
-    <button class="ref-toggle" onclick="toggleRef()">Show Reference Chart</button>
-    <div class="ref-table" id="ref-table">
-        <div class="ref-grid" id="ref-grid"></div>
+            <div id="not-started-section">
+                <div class="progress-section-label gray">Not Started</div>
+                <ul class="progress-list not-started" id="not-started-list"></ul>
+            </div>
+
+            <button class="reset-btn" onclick="resetAll()">Reset All Progress</button>
+        </div>
     </div>
 </div>
 
@@ -186,9 +236,6 @@ const ALPHABET = {
     Z: 'Zulu'
 };
 
-const REVERSE = {};
-Object.entries(ALPHABET).forEach(([k, v]) => REVERSE[v] = k);
-
 let mode = 'type';
 let currentLetter = '';
 let currentWord = '';
@@ -196,7 +243,6 @@ let score = { correct: 0, wrong: 0, streak: 0, best: 0 };
 let mastered = {};
 let answered = false;
 
-// Load saved progress
 try {
     const saved = JSON.parse(localStorage.getItem('phonetic-score'));
     if (saved) score = saved;
@@ -214,6 +260,45 @@ function updateUI() {
     document.getElementById('correct').textContent = score.correct;
     document.getElementById('wrong').textContent = score.wrong;
     document.getElementById('best').textContent = score.best;
+    updateProgress();
+}
+
+function updateProgress() {
+    const letters = Object.keys(ALPHABET);
+    const masteredList = [];
+    const learningList = [];
+    const notStartedList = [];
+
+    letters.forEach(l => {
+        const count = mastered[l] || 0;
+        if (count >= 3) masteredList.push(l);
+        else if (count > 0) learningList.push(l);
+        else notStartedList.push(l);
+    });
+
+    const masteredCount = masteredList.length;
+    document.getElementById('progress-count').textContent = `${masteredCount} / 26`;
+    document.getElementById('progress-bar').style.width = `${(masteredCount / 26) * 100}%`;
+
+    function renderList(id, items, showCount) {
+        const ul = document.getElementById(id);
+        ul.innerHTML = '';
+        items.forEach(l => {
+            const li = document.createElement('li');
+            const count = mastered[l] || 0;
+            li.innerHTML = `<span class="letter">${l}</span><span class="word">${ALPHABET[l]}</span>${showCount ? `<span class="count">${count}x</span>` : ''}`;
+            ul.appendChild(li);
+        });
+    }
+
+    renderList('mastered-list', masteredList, true);
+    renderList('learning-list', learningList, true);
+    renderList('not-started-list', notStartedList, false);
+
+    // Hide empty sections
+    document.getElementById('mastered-section').style.display = masteredList.length ? '' : 'none';
+    document.getElementById('learning-section').style.display = learningList.length ? '' : 'none';
+    document.getElementById('not-started-section').style.display = notStartedList.length ? '' : 'none';
 }
 
 function setMode(m) {
@@ -226,7 +311,6 @@ function setMode(m) {
 }
 
 function pickLetter() {
-    // Weight towards unmastered letters
     const letters = Object.keys(ALPHABET);
     const unmastered = letters.filter(l => !mastered[l] || mastered[l] < 3);
     const pool = unmastered.length > 0 ? unmastered : letters;
@@ -288,7 +372,6 @@ function buildChoices() {
 function checkChoice(btn, word) {
     if (answered) return;
     answered = true;
-
     if (word === currentWord) {
         btn.classList.add('correct');
         markCorrect();
@@ -307,7 +390,6 @@ function checkAnswer() {
     const input = document.getElementById('answer');
     const answer = input.value.trim().toLowerCase();
     if (!answer) return;
-
     answered = true;
 
     if (mode === 'reverse') {
@@ -363,7 +445,8 @@ function skipQuestion() {
     setTimeout(nextQuestion, 1500);
 }
 
-function resetScore() {
+function resetAll() {
+    if (!confirm('Reset all progress? This cannot be undone.')) return;
     score = { correct: 0, wrong: 0, streak: 0, best: 0 };
     mastered = {};
     save();
@@ -371,27 +454,10 @@ function resetScore() {
     nextQuestion();
 }
 
-function toggleRef() {
-    const table = document.getElementById('ref-table');
-    table.classList.toggle('show');
-}
-
-function buildRef() {
-    const grid = document.getElementById('ref-grid');
-    Object.entries(ALPHABET).forEach(([letter, word]) => {
-        const row = document.createElement('div');
-        row.className = 'ref-row';
-        const m = mastered[letter] >= 3 ? ' mastered' : '';
-        row.innerHTML = `<span class="ref-letter">${letter}</span><span class="ref-word${m}">${word}</span>`;
-        grid.appendChild(row);
-    });
-}
-
 document.getElementById('answer').addEventListener('keydown', e => {
     if (e.key === 'Enter') checkAnswer();
 });
 
-buildRef();
 updateUI();
 nextQuestion();
 </script>
